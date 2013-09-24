@@ -1,0 +1,93 @@
+Safetyvalve & Jobs
+
+Jesper Louis Andersen
+Distributed Systems Geek
+http://erlang-solutions.com
+@jlouis666
+
+* Load Regulation
+
+Capacity:
+
+- Engineering
+- Peak
+- Overload
+
+Protect our or *their* system against overload!
+
+Since time is limited, I provide a full example which you can *git* *clone* and toy with.
+
+* Guiding principles
+
+- Test for overload in the system border
+- Provide feedback to caller (HTTP responses, errors, ⋯)
+- Keep the failure path lean and fast. Avoid unnecessary resource allocation on that path
+
+* Queueing
+
+- If message arrival is bursty/spiky, you need a queue to handle incoming requests
+- Queues work as a normalization device
+- When arrival is "slow" and processing time is high, a queue is not worth the hassle (Telephony gateways)
+
+Question: Will queueing this request make it likely it will be processed in a short amount of time?
+Question: Queues impose waiting. For how long am I willing to wait?
+
+* Case 1: You don't need a queue
+
+- Use built-in-metrics in the Erlang VM
+- If overloaded, deny further requests until dropped below
+- Probably pick a poll rate if the metric is expensive to compute
+
+This is very simple to implement. Works well in most situations. Don't attempt anything wilder unless needed.
+
+* Case 2: You need a queue
+
+This is where tools like "jobs" and "safetyvalve" helps
+
+I'll do Safetyvalve. Jobs is like this, but more advanced and has had trouble in the past with correctness.
+
+	# Needs relx, siege, and rebar :/
+	$ git clone https://github.com/esl/get-together-2013
+	$ cd safetyvalve_jobs/sv_example
+	$ unset ERL_LIBS # Needed to appease erlang.mk // HL
+	$ make rel
+	$ make console
+	$ make siege (In another window)
+	
+Safetyvalve puts correctness over speed:
+
+- Overhead when deployed
+- Best used when work task is expensive
+
+* Implementation:
+
+We are implementing an NSA-certified RNG called XKCD-221:
+
+.code sv_example/src/sv_example_handler.erl /^xkcd_random/,/\.$/
+
+.image sv_example/random_number.png
+
+* Queue Configuration:
+
+We configure a queue called `web_queue` in `sys.config` for the incoming web requests
+
+.code sv_example/rel/sys.config /^\[/,/\]\.$/
+
+* Queueing implementation:
+
+Implementation is a standard Cowboy REST handler
+
+.code sv_example/src/sv_example_handler.erl /^-module/,/\.$/
+
+where we listen on *GET* requests and respond with *JSON* documents:
+
+.code sv_example/src/sv_example_handler.erl /^get_json/,/\.$/
+
+Note the error exit with a 503 if overload happens.
+
+* Exercises left for the reader:
+
+- Push the overload check higher up the HTTP stack
+- Read about and understand queue algorithms like CoDel
+- Make SV understand queue sojourn times
+- Try Jobs on this task as well (Jobs is distributed, SV is not)
