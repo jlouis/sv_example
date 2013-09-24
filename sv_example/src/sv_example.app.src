@@ -1,7 +1,7 @@
 {application, sv_example,
  [
   {description, "An example usage of the Safetyvalve application"},
-  {vsn, "0.1.0"},
+  {vsn, "0.2.0"},
   {registered, [sv_example_sup]},
   {applications, [
                   kernel,

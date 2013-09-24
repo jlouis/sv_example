@@ -1,6 +1,8 @@
 
 PROJECT = sv_example
 
+.DEFAULT_GOAL := app
+
 rel: clean-rel deps
 	relx
 
