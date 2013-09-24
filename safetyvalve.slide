@@ -1,4 +1,7 @@
 Safetyvalve & Jobs
+A quick overview
+3 Oct 2013
+Tags: load regulation, safetyvalve, queuing
 
 Jesper Louis Andersen
 Distributed Systems Geek
@@ -16,6 +19,7 @@ Capacity:
 Protect our or *their* system against overload!
 
 Since time is limited, I provide a full example which you can *git* *clone* and toy with.
+Also provides use of `erlang.mk`, `relx`, Cowboys `REST` module, and Golangs `present` tool.
 
 * Guiding principles
 
@@ -28,8 +32,9 @@ Since time is limited, I provide a full example which you can *git* *clone* and 
 - If message arrival is bursty/spiky, you need a queue to handle incoming requests
 - Queues work as a normalization device
 - When arrival is "slow" and processing time is high, a queue is not worth the hassle (Telephony gateways)
+- Do not let tasks wait in the queue (affects latency)
 
-Question: Will queueing this request make it likely it will be processed in a short amount of time?
+Question: Will queueing this request make it likely it will be processed a short while later?
 Question: Queues impose waiting. For how long am I willing to wait?
 
 * Case 1: You don't need a queue
@@ -38,7 +43,9 @@ Question: Queues impose waiting. For how long am I willing to wait?
 - If overloaded, deny further requests until dropped below
 - Probably pick a poll rate if the metric is expensive to compute
 
-This is very simple to implement. Works well in most situations. Don't attempt anything wilder unless needed.
+This is very simple to implement.
+Works well in most situations.
+Don't attempt anything wilder unless needed.
 
 * Case 2: You need a queue
 
@@ -49,10 +56,10 @@ I'll do Safetyvalve. Jobs is like this, but more advanced and has had trouble in
 	# Needs relx, siege, and rebar :/
 	$ git clone https://github.com/esl/get-together-2013
 	$ cd safetyvalve_jobs/sv_example
-	$ unset ERL_LIBS # Needed to appease erlang.mk // HL
+	$ unset ERL_LIBS # Needed to appease erlang.mk
 	$ make rel
 	$ make console
-	$ make siege (In another window)
+	$ make siege # (In another window)
 	
 Safetyvalve puts correctness over speed:
 
