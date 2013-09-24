@@ -80,13 +80,31 @@ We configure a queue called `web_queue` in `sys.config` for the incoming web req
 
 .code sv_example/rel/sys.config /^\[/,/\]\.$/
 
+* Cowboy setup:
+
+We have the standard cowboy setup
+
+.code sv_example/src/sv_example_app.erl /^-module/,/\.$/
+
+.code sv_example/src/sv_example_app.erl /^start/,/\.$/
+
 * Queueing implementation:
 
 Implementation is a standard Cowboy REST handler
 
 .code sv_example/src/sv_example_handler.erl /^-module/,/\.$/
 
-where we listen on *GET* requests and respond with *JSON* documents:
+where REST is wrapped in resource acquisition/release:
+
+.code sv_example/src/sv_example_handler.erl /^init/,/\.$/
+
+.code sv_example/src/sv_example_handler.erl /^rest_init/,/\.$/
+
+.code sv_example/src/sv_example_handler.erl /^rest_terminate/,/\.$/
+
+* Queueing implementation (2):
+ 
+We listen on *GET* requests and respond with *JSON* documents:
 
 .code sv_example/src/sv_example_handler.erl /^get_json/,/\.$/
 
@@ -94,7 +112,6 @@ Note the error exit with a 503 if overload happens.
 
 * Exercises left for the reader:
 
-- Push the overload check higher up the HTTP stack
 - Read about and understand queue algorithms like CoDel
 - Make SV understand queue sojourn times
 - Try Jobs on this task as well (Jobs is distributed, SV is not)

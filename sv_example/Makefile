@@ -15,7 +15,7 @@ console:
 
 siege:
 	siege \
-		-c 500 \
+		-c 400 \
 		-t 60S \
 		http://localhost:8080/
 DEPS=cowboy lager safetyvalve jsx
